@@ -7,7 +7,7 @@ ID: 1141181
     the thread will never be notified if the thread go into wait state.
     Solution: cover wait() and notify() codes with synchronized block.
 
-2. Problem: Heroes can not get new missions from mission queue.
+2. Problem: Heroes can not get new missions from the new mission Roster queue.
    Reproduction: If 4 heroes enter the room, but there are only 3 new missions. One of the hero has to wait the new
         mission. But even the new missions are added in the queue, the hero can not get it.
    Possible Reason: The mission dequeue data structure (LinkedList) in the Roster is not thread-safe. In this scenario,
@@ -30,6 +30,10 @@ ID: 1141181
 4. Problem: Some heroes can get/consume missions when the meeting is end.
    Reproduction: Randomly
    Possible Reason: Similar to Problem 3. Caused by memory visibility of boolean variable `isMeetingStarted`.
-   Solution: Add volitile (Non-blocking), or make getter/setter of `isMeetingStarted` synchronized (blocking).
+   Solution: Add volitile to the flag var (Non-blocking), or make getter/setter of `isMeetingStarted` synchronized (blocking).
 
-5. Problem: One hero entered the mansion after the meeting starts.
+5. Problem: All hero and the professor entered the meeting, but meeting didn't start.
+   Reproduction: Randomly
+   Possible Reason: Multiple heroes registered in room at the same time, and got the same size of the RoomHeroIdSet. As a result,
+        the final total size of RoomHeroIdSet was always less than the total hero number. The meeting could not start.
+   Solution: Make register in room method serializable, so that the final RoomHeroIdSet size can guaranteed correct.
