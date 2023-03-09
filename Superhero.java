@@ -1,6 +1,6 @@
 /**
  * <p>
- *  superhero simulate obj
+ * superhero simulate obj
  * </p>
  *
  * @author 996Worker
@@ -8,7 +8,7 @@
  */
 public class Superhero extends Thread {
 
-    // super hero id
+    // superhero id
     private final int id;
 
     private final Roster rosterNew;
@@ -17,110 +17,153 @@ public class Superhero extends Thread {
 
     private Mission currentMission;
 
+    private boolean isInRoom;
+
+    private boolean isInMansion;
+
     // the home star
     private final Mansion mansion;
+
     public Superhero(int id, Roster rosterNew, Roster rosterComplete, Mansion mansion) {
         this.id = id;
         this.rosterNew = rosterNew;
         this.rosterComplete = rosterComplete;
         this.mansion = mansion;
+        isInMansion = false;
+        isInRoom = false;
     }
 
     @Override
     public void run() {
-        ;
+        // hero process loop
+        while (true) {
+            runHeroLifeCycle();
+        }
+    }
+
+    /**
+     * one cycle of hero behaviors
+     */
+    private void runHeroLifeCycle() {
+        try {
+            // Try to enter mansion
+            while (!enterMansion()) {
+                // if hero cannot enter the mansion, wait for notification
+                mansion.getMansionEntryLock().wait();
+            }
+
+            // mingling before meeting
+            sleep(Params.getMinglingTime());
+
+            // enter meeting room
+            boolean isEnterSuccess = enterRoom();
+            if (!isEnterSuccess) {
+                throw new Exception(String.format("[Error] Hero %d enter room", id));
+            }
+
+            // do things in the room
+            workInTheRoom();
+
+            // leave room
+            boolean isLeaveSuccess = leaveRoom();
+            if (!isLeaveSuccess) {
+                throw new Exception(String.format("[Error] Hero %d leave room", id));
+            }
+
+            // mingling after meeting
+            sleep(Params.getMinglingTime());
+
+            // try leave
+            while (!leaveMansion()) {
+                mansion.getMansionLeaveLock().wait();
+            }
+
+            // pretend to conduct current mission by sleeping
+            sleep(Params.getMissionTime());
+
+            // mark mission as done, ready to go back
+            currentMission.completed = true;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * defines hero behaviors in the room
+     *
+     * @throws InterruptedException exception
+     */
+    private void workInTheRoom() throws InterruptedException {
+        // wait start meeting
+        while (!mansion.isMeetingStarted()) {
+            // wait until be notified for meeting
+            mansion.getMeetingStartLock().wait();
+        }
+
+        // if have current task, submit task
+        if (currentMission != null) {
+            rosterComplete.addNew(currentMission);
+        }
+
+        // get new task
+        Mission theNewMission;
+        do {
+            theNewMission = rosterNew.getOne();
+        } while (theNewMission == null);
+
+        // replace current mission to new one
+        currentMission = theNewMission;
     }
 
     /**
      * enter the mansion. Register id to the set.
      */
-    private void enterMansion() {
-        if (mansion.getInMansionIdSet().contains(id)) {
-            // if already in mansion
-            return;
+    private boolean enterMansion() {
+        boolean isSuccess = mansion.registerHeroInMansion(id);
+        if (isSuccess) {
+            isInMansion = true;
         }
-
-        if (mansion.getProfessorInMansion()) {
-            // if professor in mansion
-            return;
-        }
-
-        mansion.getInMansionIdSet().add(id);
-        System.out.printf("Superhero %d enters Mansion.%n", id);
+        return isSuccess;
     }
 
     /**
      * leave mansion.
      */
-    private void leaveMansion() {
-        if (mansion.getSecretRoomIdSet().contains(id)) {
-            // in the room can not leave the mansion
-            return;
+    private boolean leaveMansion() {
+        boolean isSuccess = mansion.registerHeroOutMansion(id);
+        if (isSuccess) {
+            isInMansion = false;
         }
 
-        if (!mansion.getInMansionIdSet().contains(id)) {
-            // if not in the mansion at all
-            return;
-        }
-
-        if (mansion.getProfessorInMansion()) {
-            // if professor in mansion
-            return;
-        }
-
-        mansion.getInMansionIdSet().remove(id);
-        System.out.printf("Superhero %d exits from Mansion.%n", id);
+        return isSuccess;
     }
 
     /**
      * hero enter room
      */
-    private void enterRoom() {
-        if (!mansion.getInMansionIdSet().contains(id)) {
-            // hero should in mansion before enter room
-            return;
+    private boolean enterRoom() {
+        boolean isSuccess = mansion.registerHeroInRoom(id);
+        if (isSuccess) {
+            isInRoom = true;
         }
 
-        if (mansion.getSecretRoomIdSet().contains(id)) {
-            // if already in room
-            return;
-        }
-
-        mansion.getSecretRoomIdSet().add(id);
-        System.out.printf("Superhero %d enters the Secret Room.%n", id);
+        return isSuccess;
     }
 
     /**
      * hero leave room
      */
-    private void leaveRoom() {
-        if (!mansion.getInMansionIdSet().contains(id)) {
-            // hero should in mansion before leaving room
-            return;
+    private boolean leaveRoom() {
+        boolean isSuccess = mansion.registerHeroOutRoom(id);
+        if (isSuccess) {
+            isInRoom = false;
         }
 
-        if (!mansion.getSecretRoomIdSet().contains(id)) {
-            // hero should in room before leave the room
-            return;
-        }
-
-        mansion.getSecretRoomIdSet().add(id);
-        System.out.printf("Superhero %d leaves the Secret Room.%n", id);
+        return isSuccess;
     }
 
     public int getHeroId() {
         return id;
-    }
-
-    public Roster getRosterNew() {
-        return rosterNew;
-    }
-
-    public Roster getRosterComplete() {
-        return rosterComplete;
-    }
-
-    public Mansion getMansion() {
-        return mansion;
     }
 }

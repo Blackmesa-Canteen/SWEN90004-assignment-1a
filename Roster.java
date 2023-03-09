@@ -24,7 +24,7 @@ public class Roster {
     }
 
     /**
-     * add new mission into the queue
+     * add complete/new mission into the queue
      * @param mission mission obj
      */
     public void addNew(Mission mission) {
@@ -36,6 +36,14 @@ public class Roster {
      */
     public void removeComplete() {
         missionList.poll();
+    }
+
+    /**
+     * get one mission
+     * @return mission obj
+     */
+    public Mission getOne() {
+        return missionList.poll();
     }
 
     public String getId() {

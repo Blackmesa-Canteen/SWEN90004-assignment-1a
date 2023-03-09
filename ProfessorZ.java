@@ -8,10 +8,10 @@
  */
 public class ProfessorZ extends Thread {
 
-    private final Mansion home;
+    private final Mansion mansion;
 
-    public ProfessorZ(Mansion home) {
-        this.home = home;
+    public ProfessorZ(Mansion mansion) {
+        this.mansion = mansion;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class ProfessorZ extends Thread {
         ;
     }
 
-    public Mansion getHome() {
-        return home;
+    public Mansion getMansion() {
+        return mansion;
     }
 }
