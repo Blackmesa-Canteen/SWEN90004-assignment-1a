@@ -34,8 +34,8 @@ public class Roster {
     /**
      * remove a mission from the queue
      */
-    public void removeComplete() {
-        missionList.poll();
+    public Mission removeComplete() {
+        return missionList.poll();
     }
 
     /**

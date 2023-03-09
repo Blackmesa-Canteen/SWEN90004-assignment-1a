@@ -20,7 +20,10 @@ public class Consumer extends Thread {
         while (!isInterrupted()) {
             try {
                 // remove a mission that is complete
-                roster.removeComplete();
+                Mission mission = roster.removeComplete();
+                if (mission != null) {
+                    System.out.printf("Mission %d removed from Complete Roster.%n", mission.getId());
+                }
 
                 // let some time pass before the next mission is removed
                 sleep(Params.MISSION_REMOVAL_TIME);

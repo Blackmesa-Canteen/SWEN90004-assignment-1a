@@ -1,6 +1,6 @@
 /**
  * A mission, with a unique id, to be assigned to a superhero for completion
- * 
+ *
  * @author ngeard@unimelb.edu.au
  *
  */
@@ -30,5 +30,9 @@ public class Mission {
     // produce an identifying string for the mission
     public String toString() {
         return "Mission " + id;
+    }
+
+    public int getId() {
+        return id;
     }
 }

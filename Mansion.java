@@ -35,7 +35,10 @@ public class Mansion {
     private boolean isMeetingStarted;
 
     // lock for meeting started
-    private Object meetingStartLock = new Object();
+    private final Object meetingStartLock = new Object();
+
+    // lock for meeting ended
+    private final Object meetingEndLock = new Object();
 
     public Mansion(String id, Roster rosterNew, Roster rosterComplete) {
         this.id = id;
@@ -141,6 +144,8 @@ public class Mansion {
      */
     public void registerProfessorInMansion() {
         isProfessorInMansion = true;
+        System.out.println("Professor Z enters the Mansion.");
+        tryStartMeeting();
     }
 
     /**
@@ -149,9 +154,16 @@ public class Mansion {
     public void registerProfessorOutMansion() {
         isProfessorInMansion = false;
         // notify all waiting heros for entering mansion
-        mansionEntryLock.notifyAll();
+        synchronized (mansionEntryLock) {
+            mansionEntryLock.notifyAll();
+        }
+
         // notify all waiting heros for leaving mansion
-        mansionLeaveLock.notifyAll();
+        synchronized (mansionLeaveLock) {
+            mansionLeaveLock.notifyAll();
+        }
+
+        System.out.println("Professor Z leaves the Mansion.");
     }
 
     /**
@@ -159,11 +171,15 @@ public class Mansion {
      * have also entered the Secret Room, Professor Z starts a meeting
      */
     private void tryStartMeeting() {
-        boolean isAllHeroInRoom = inMansionIdSet.size() == inRoomIdSet.size();
-        if (isProfessorInMansion && isAllHeroInRoom) {
-            isMeetingStarted = true;
-            // notify all waiting hero for meeting
-            meetingStartLock.notifyAll();
+        synchronized (meetingStartLock) {
+            boolean isAllHeroInRoom = inMansionIdSet.size() == inRoomIdSet.size();
+            if (isProfessorInMansion && isAllHeroInRoom) {
+                isMeetingStarted = true;
+                // notify all waiting hero for meeting
+                meetingStartLock.notifyAll();
+
+                System.out.println("Meeting begins!");
+            }
         }
     }
 
@@ -171,9 +187,17 @@ public class Mansion {
      * Once all superheroes have left the Secret Room, Professor Z ends the meeting
      */
     private void tryEndMeeting() {
-        boolean isAllHeroOutRoom = inRoomIdSet.size() == 0;
-        if (isAllHeroOutRoom) {
-            isMeetingStarted = false;
+        synchronized (meetingEndLock) {
+            boolean isAllHeroOutRoom = inRoomIdSet.size() == 0;
+            if (isAllHeroOutRoom) {
+                isMeetingStarted = false;
+                // notify waiting professor for meeting end event
+                meetingEndLock.notifyAll();
+
+                System.out.println("Meeting ends!");
+            }
+
+
         }
     }
 
@@ -223,5 +247,9 @@ public class Mansion {
 
     public Object getMansionLeaveLock() {
         return mansionLeaveLock;
+    }
+
+    public Object getMeetingEndLock() {
+        return meetingEndLock;
     }
 }

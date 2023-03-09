@@ -47,9 +47,11 @@ public class Superhero extends Thread {
     private void runHeroLifeCycle() {
         try {
             // Try to enter mansion
-            while (!enterMansion()) {
-                // if hero cannot enter the mansion, wait for notification
-                mansion.getMansionEntryLock().wait();
+            synchronized (mansion.getMansionEntryLock()) {
+                while (!enterMansion()) {
+                    // if hero cannot enter the mansion, wait for notification
+                    mansion.getMansionEntryLock().wait();
+                }
             }
 
             // mingling before meeting
@@ -74,9 +76,14 @@ public class Superhero extends Thread {
             sleep(Params.getMinglingTime());
 
             // try leave
-            while (!leaveMansion()) {
-                mansion.getMansionLeaveLock().wait();
+            synchronized (mansion.getMansionLeaveLock()) {
+                while (!leaveMansion()) {
+                    mansion.getMansionLeaveLock().wait();
+                }
             }
+
+            // hero shout to work
+            System.out.printf("Superhero %d sets of to complete Mission %d!%n", id, currentMission.getId());
 
             // pretend to conduct current mission by sleeping
             sleep(Params.getMissionTime());
@@ -96,14 +103,17 @@ public class Superhero extends Thread {
      */
     private void workInTheRoom() throws InterruptedException {
         // wait start meeting
-        while (!mansion.isMeetingStarted()) {
-            // wait until be notified for meeting
-            mansion.getMeetingStartLock().wait();
+        synchronized (mansion.getMeetingStartLock()) {
+            while (!mansion.isMeetingStarted()) {
+                // wait until be notified for meeting
+                mansion.getMeetingStartLock().wait();
+            }
         }
 
         // if have current task, submit task
         if (currentMission != null) {
             rosterComplete.addNew(currentMission);
+            System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
         }
 
         // get new task
@@ -114,6 +124,7 @@ public class Superhero extends Thread {
 
         // replace current mission to new one
         currentMission = theNewMission;
+        System.out.printf("Superhero %d acquires Mission %d.%n", id, currentMission.getId());
     }
 
     /**
