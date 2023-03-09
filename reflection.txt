@@ -1,15 +1,35 @@
-Name: Xiaotian Li ID: 1141181
+Name: Xiaotian Li
+ID: 1141181
+
 1.  Problem: java.lang.IllegalMonitorStateException.
     Reproduction: If I don't cover wait() and notify() codes with synchronized
-    Possible Reason:
+    Possible Reason: Before a thread entering the wait state, the notify logic has been finished by other thread, so
+    the thread will never be notified if the thread go into wait state.
     Solution: cover wait() and notify() codes with synchronized block.
 
-2. Problem: Heros can not get new missions from mission queue.
+2. Problem: Heroes can not get new missions from mission queue.
    Reproduction: If 4 heroes enter the room, but there are only 3 new missions. One of the hero has to wait the new
         mission. But even the new missions are added in the queue, the hero can not get it.
-   Possible Reason: The mission dequeue data structure (LinkedList) in the Roster is not thread-safe. Adding and removing nodes
-        in the multi-thread may lead to dead nodes. In this scenario, JDK 11 uses tail-insertion to the linked list, so the last node reference
-        pointed to the new inserted missions, and using head node reference to remove missions. However, in this multi-thread condition,
-        linked list made the successor node of head node to null, but continued inserting new missions to last node. Since head node's successor
+   Possible Reason: The mission dequeue data structure (LinkedList) in the Roster is not thread-safe. In this scenario,
+        JDK 11 uses tail-insertion to the linked list, so the last node reference pointed to the new inserted missions,
+        and using head node reference to remove missions. However, in this multi-thread condition, linked list made the
+        successor node of head node to null, but continued inserting new missions to last node. Since head node's successor
         was always null, so the new added missions are in dead nodes.
-   Solution: Replace LinkedList with ConcurrentLinkedDeque, or make addMission and removeMission synchronized.
+   Solution: Replace LinkedList with ConcurrentLinkedDeque (Non-blocking),
+        or make addMission and removeMission method synchronized (Monitor, blocking).
+
+3. Problem: Some heroes still can enter/leave Mansion if Professor is in.
+   Reproduction: Professor in and out very frequently
+   Possible Reason: 1) Boolean value `isProfessorInMansion` is the shared resource that be accessed and modified by multiple
+        threads, the boolean value is cached in some hero objects and outdated; 2) Register heroes is not atomic operation.
+        the professor entered Mansion as soon as heroes passed professor checking.
+   Solution: 1) Add volitile keyword to guarantee the memory visibility of `isProfessorInMansion`, so that all thread can
+        detect changes of the value and updates the cache accordingly (Non-blocking). Or make getter/setter synchronized (blocking).
+        2) Make register heroes in/out Mansion methods synchronized.
+
+4. Problem: Some heroes can get/consume missions when the meeting is end.
+   Reproduction: Randomly
+   Possible Reason: Similar to Problem 3. Caused by memory visibility of boolean variable `isMeetingStarted`.
+   Solution: Add volitile (Non-blocking), or make getter/setter of `isMeetingStarted` synchronized (blocking).
+
+5. Problem: One hero entered the mansion after the meeting starts.

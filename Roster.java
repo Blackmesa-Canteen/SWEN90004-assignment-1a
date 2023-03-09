@@ -21,21 +21,21 @@ public class Roster {
 
     public Roster(String id) {
         this.id = id;
-        missionList = new ConcurrentLinkedDeque<>();
+        missionList = new LinkedList<>();
     }
 
     /**
      * add complete/new mission into the queue
      * @param mission mission obj
      */
-    public void addNew(Mission mission) {
+    public synchronized void addNew(Mission mission) {
         missionList.offer(mission);
     }
 
     /**
      * remove a mission from the queue
      */
-    public Mission removeComplete() {
+    public synchronized Mission removeComplete() {
         return missionList.poll();
     }
 
@@ -43,7 +43,7 @@ public class Roster {
      * get one mission
      * @return mission obj
      */
-    public Mission getOne() {
+    public synchronized Mission getOne() {
         return missionList.poll();
     }
 
