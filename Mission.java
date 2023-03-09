@@ -24,7 +24,7 @@ public class Mission {
     }
 
     // get a new Mission instance with a unique identifier
-    public static Mission getNewMission() {
+    public synchronized static Mission getNewMission() {
         return new Mission(nextId++);
     }
 

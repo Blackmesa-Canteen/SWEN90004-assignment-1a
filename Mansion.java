@@ -101,22 +101,23 @@ public class Mansion {
      * hero enter room
      */
     public boolean registerHeroInRoom(int heroId) {
-        if (!inMansionIdSet.contains(heroId)) {
-            // hero should in mansion before enter room
-            return false;
-        }
+        synchronized (this) {
+            if (!inMansionIdSet.contains(heroId)) {
+                // hero should in mansion before enter room
+                return false;
+            }
 
-        if (inRoomIdSet.contains(heroId)) {
-            // if already in room
-            return false;
-        }
+            if (inRoomIdSet.contains(heroId)) {
+                // if already in room
+                return false;
+            }
 
-        inRoomIdSet.add(heroId);
-        System.out.printf("Superhero %d enters the Secret Room.%n", heroId);
+            inRoomIdSet.add(heroId);
+            System.out.printf("Superhero %d enters the Secret Room.%n", heroId);
+        }
 
         // try start meeting
         tryStartMeeting();
-
         return true;
     }
 
@@ -124,22 +125,23 @@ public class Mansion {
      * hero leave room
      */
     public boolean registerHeroOutRoom(int heroId) {
-        if (!inMansionIdSet.contains(heroId)) {
-            // hero should in mansion before leaving room
-            return false;
-        }
+        synchronized (this) {
+            if (!inMansionIdSet.contains(heroId)) {
+                // hero should in mansion before leaving room
+                return false;
+            }
 
-        if (!inRoomIdSet.contains(heroId)) {
-            // hero should in room before leave the room
-            return false;
-        }
+            if (!inRoomIdSet.contains(heroId)) {
+                // hero should in room before leave the room
+                return false;
+            }
 
-        inRoomIdSet.remove(heroId);
-        System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
+            inRoomIdSet.remove(heroId);
+            System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
+        }
 
         // try end meeting
         tryEndMeeting();
-
         return true;
     }
 

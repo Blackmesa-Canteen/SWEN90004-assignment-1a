@@ -1,8 +1,15 @@
 Name: Xiaotian Li
 ID: 1141181
 
+0. Problem: Duplicated mission Ids.
+   Reproduction: If generate mission too fast.
+   Possible Reason: `nextId++` is not atomic operation, 3 steps are: load nextId -> tmp = nextId + 1 -> store nextId
+        new value. Multi-thread condition causes trouble.
+   Solution: Make `getNewMission()` method synchronized to gain atomicity. However, volatile keyword can not guarantee
+        atomic operation in this case, because it can still get the same id in the first step.
+
 1.  Problem: java.lang.IllegalMonitorStateException.
-    Reproduction: If I don't cover wait() and notify() codes with synchronized
+    Reproduction: If I don't cover wait() and notify() related codes with synchronized keyword.
     Possible Reason: Before a thread entering the wait state, the notify logic has been finished by other thread, so
     the thread will never be notified if the thread go into wait state.
     Solution: cover wait() and notify() codes with synchronized block.
