@@ -2,6 +2,7 @@
  * A mission, with a unique id, to be assigned to a superhero for completion
  *
  * @author ngeard@unimelb.edu.au
+ * @author Xiaotian Li 1141181
  *
  */
 

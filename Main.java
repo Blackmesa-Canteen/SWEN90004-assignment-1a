@@ -6,6 +6,7 @@
  *  - starting all of the processes;
  *
  * @author ngeard@unimelb.edu.au
+ * @author Xiaotian Li 1141181
  *
  */
 

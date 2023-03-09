@@ -7,7 +7,7 @@ import java.util.List;
  *  The roster class for task recording
  * </p>
  *
- * @author 996Worker
+ * @author Xiaotian Li 1141181
  * @since 2023-03-06 20:22
  */
 public class Roster {

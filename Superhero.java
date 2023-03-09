@@ -3,7 +3,7 @@
  * superhero simulate obj
  * </p>
  *
- * @author 996Worker
+ * @author Xiaotian Li 1141181
  * @since 2023-03-06 20:43
  */
 public class Superhero extends Thread {

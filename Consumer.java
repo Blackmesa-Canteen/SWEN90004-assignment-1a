@@ -2,6 +2,7 @@
  * Consumes completed missions from an roster.
  *
  * @author ngeard@unimelb.edu.au
+ * @author Xiaotian Li 1141181
  *
  */
 

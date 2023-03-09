@@ -3,7 +3,7 @@
  *  Professor Z simulation obj
  * </p>
  *
- * @author 996Worker
+ * @author Xiaotian Li 1141181
  * @since 2023-03-06 20:36
  */
 public class ProfessorZ extends Thread {
