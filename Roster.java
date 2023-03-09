@@ -1,6 +1,7 @@
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ public class Roster {
 
     public Roster(String id) {
         this.id = id;
-        missionList = new LinkedList<>();
+        missionList = new ConcurrentLinkedDeque<>();
     }
 
     /**

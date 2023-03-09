@@ -110,6 +110,8 @@ public class Superhero extends Thread {
             }
         }
 
+        System.out.println("[debug] passed the meeting start lock");
+
         // if have current task, submit task
         if (currentMission != null) {
             rosterComplete.addNew(currentMission);
@@ -118,9 +120,13 @@ public class Superhero extends Thread {
 
         // get new task
         Mission theNewMission;
+        System.out.println("[debug] before get mission, hero: " + id);
         do {
             theNewMission = rosterNew.getOne();
+            if (theNewMission != null) System.out.println("[debug] get mission: " + theNewMission.getId());
         } while (theNewMission == null);
+
+        System.out.println("[debug] after get mission, hero: " + id);
 
         // replace current mission to new one
         currentMission = theNewMission;

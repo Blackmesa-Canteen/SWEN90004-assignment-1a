@@ -26,7 +26,7 @@ class Params {
     static final int MEAN_PROF_WAITING_TIME = 2000;
 
     // duration between new quests being added
-    static final int MISSION_ADDITION_TIME = 1000;
+    static final int MISSION_ADDITION_TIME = 3000;
 
     // duration between completed quests being removed
     static final int MISSION_REMOVAL_TIME = 1000;

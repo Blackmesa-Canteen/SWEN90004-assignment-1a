@@ -1,4 +1,15 @@
 Name: Xiaotian Li ID: 1141181
-1.  Problem: java.lang.IllegalMonitorStateException:
+1.  Problem: java.lang.IllegalMonitorStateException.
     Reproduction: If I don't cover wait() and notify() codes with synchronized
     Possible Reason:
+    Solution: cover wait() and notify() codes with synchronized block.
+
+2. Problem: Heros can not get new missions from mission queue.
+   Reproduction: If 4 heroes enter the room, but there are only 3 new missions. One of the hero has to wait the new
+        mission. But even the new missions are added in the queue, the hero can not get it.
+   Possible Reason: The mission dequeue data structure (LinkedList) in the Roster is not thread-safe. Adding and removing nodes
+        in the multi-thread may lead to dead nodes. In this scenario, JDK 11 uses tail-insertion to the linked list, so the last node reference
+        pointed to the new inserted missions, and using head node reference to remove missions. However, in this multi-thread condition,
+        linked list made the successor node of head node to null, but continued inserting new missions to last node. Since head node's successor
+        was always null, so the new added missions are in dead nodes.
+   Solution: Replace LinkedList with ConcurrentLinkedDeque, or make addMission and removeMission synchronized.

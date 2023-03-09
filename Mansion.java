@@ -185,6 +185,8 @@ public class Mansion {
 
     /**
      * Once all superheroes have left the Secret Room, Professor Z ends the meeting
+     *
+     * // TODO dead lock, can not end meeting
      */
     private void tryEndMeeting() {
         synchronized (meetingEndLock) {
@@ -196,6 +198,8 @@ public class Mansion {
 
                 System.out.println("Meeting ends!");
             }
+
+            System.out.println("[debug] roomSize: " + inRoomIdSet.size());
 
 
         }
