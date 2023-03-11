@@ -55,7 +55,7 @@ public class Superhero extends Thread {
             }
 
             // mingling before meeting
-            sleep(Params.getMinglingTime());
+            sleep(Params.getDiscussionTime());
 
             // enter meeting room
             boolean isEnterSuccess = enterRoom();
@@ -73,7 +73,7 @@ public class Superhero extends Thread {
             }
 
             // mingling after meeting
-            sleep(Params.getMinglingTime());
+            sleep(Params.getDiscussionTime());
 
             // try leave
             synchronized (mansion.getMansionLeaveLock()) {
@@ -110,23 +110,23 @@ public class Superhero extends Thread {
             }
         }
 
-        System.out.println("[debug] passed the meeting start lock");
+        // System.out.println("[debug] passed the meeting start lock");
 
         // if have current task, submit task
         if (currentMission != null) {
             rosterComplete.addNew(currentMission);
-            System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
+            // System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
         }
 
         // get new task
         Mission theNewMission;
-        System.out.println("[debug] before get mission, hero: " + id);
+        // System.out.println("[debug] before get mission, hero: " + id);
         do {
             theNewMission = rosterNew.getOne();
-            if (theNewMission != null) System.out.println("[debug] get mission: " + theNewMission.getId());
+            // if (theNewMission != null) System.out.println("[debug] get mission: " + theNewMission.getId());
         } while (theNewMission == null);
 
-        System.out.println("[debug] after get mission, hero: " + id);
+        // System.out.println("[debug] after get mission, hero: " + id);
 
         // replace current mission to new one
         currentMission = theNewMission;

@@ -209,7 +209,7 @@ public class Mansion {
                 System.out.println("Meeting ends!");
             }
 
-            System.out.println("[debug] roomSize: " + inRoomIdSet.size());
+            // System.out.println("[debug] roomSize: " + inRoomIdSet.size());
 
 
         }

@@ -37,14 +37,17 @@ public class ProfessorZ extends Thread {
         mansion.registerProfessorInMansion();
 
         // professor stay in mansion;
-        sleep(Params.getProfWaitingTime());
+        sleep(Params.getDiscussionTime());
 
-        // if meeting is not ended, should not leave
+        // if meeting is not ended, should not leave mansion
         synchronized (mansion.getMeetingEndLock()) {
             if (mansion.isMeetingStarted()) {
                 mansion.getMeetingEndLock().wait();
             }
         }
+
+        // professor stay in mansion for some time;
+        sleep(Params.getDiscussionTime());
 
         // professor out the mansion
         mansion.registerProfessorOutMansion();

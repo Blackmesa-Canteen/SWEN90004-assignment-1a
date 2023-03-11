@@ -16,8 +16,8 @@ class Params {
 	// number of knights in the simulator
     static final int NUM_SUPERHEROES = 4;
 
-    // average duration that knights spend mingling before and after meetings
-    static final int MEAN_MINGLING_TIME = 2000;
+    // average duration that superheros spend discussing world affairs before and after meetings
+    static final int MEAN_DISCUSSION_TIME = 2000;
 
     // average duration that knights spend completing a mission
     static final int MEAN_MISSION_TIME = 400;
@@ -31,10 +31,10 @@ class Params {
     // duration between completed quests being removed
     static final int MISSION_REMOVAL_TIME = 1000;
 
-    // generate a random mingling duration
-    static int getMinglingTime() {
+    // generate a random discussion duration
+    static int getDiscussionTime() {
         return (int) Math.max(0.0, rnd.nextGaussian() *
-        		MEAN_MINGLING_TIME / 2 + MEAN_MINGLING_TIME);
+                MEAN_DISCUSSION_TIME / 2 + MEAN_DISCUSSION_TIME);
     }
 
     // generate a random questing duration
@@ -43,7 +43,7 @@ class Params {
         		MEAN_MISSION_TIME / 6 + MEAN_MISSION_TIME);
     }
 
-    // generate a random interval for King Arthur to be away
+    // generate a random interval for Professor Z to be away
     static int getProfWaitingTime() {
     	return (int) Math.max(0.0, (rnd.nextGaussian() *
     			MEAN_PROF_WAITING_TIME / 8) + MEAN_PROF_WAITING_TIME);
