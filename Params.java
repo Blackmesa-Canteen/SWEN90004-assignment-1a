@@ -17,19 +17,19 @@ class Params {
     static final int NUM_SUPERHEROES = 4;
 
     // average duration that superheros spend discussing world affairs before and after meetings
-    static final int MEAN_DISCUSSION_TIME = 2000;
+    static final int MEAN_DISCUSSION_TIME = 200;
 
     // average duration that knights spend completing a mission
-    static final int MEAN_MISSION_TIME = 400;
+    static final int MEAN_MISSION_TIME = 40;
 
     // average interval between Professor Z leaving and re-entering the Mansion
-    static final int MEAN_PROF_WAITING_TIME = 2000;
+    static final int MEAN_PROF_WAITING_TIME = 200;
 
     // duration between new quests being added
-    static final int MISSION_ADDITION_TIME = 3000;
+    static final int MISSION_ADDITION_TIME = 20;
 
     // duration between completed quests being removed
-    static final int MISSION_REMOVAL_TIME = 1000;
+    static final int MISSION_REMOVAL_TIME = 20;
 
     // generate a random discussion duration
     static int getDiscussionTime() {
