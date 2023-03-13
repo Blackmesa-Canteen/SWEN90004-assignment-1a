@@ -184,7 +184,7 @@ public class Mansion {
     private void tryStartMeeting() {
         synchronized (meetingStartLock) {
             boolean isAllHeroInRoom = inMansionIdSet.size() == inRoomIdSet.size();
-            if (isProfessorInMansion && isAllHeroInRoom) {
+            if (!isMeetingStarted && isProfessorInMansion && isAllHeroInRoom) {
                 isMeetingStarted = true;
                 // notify all waiting hero for meeting
                 meetingStartLock.notifyAll();
@@ -201,7 +201,7 @@ public class Mansion {
     private void tryEndMeeting() {
         synchronized (meetingEndLock) {
             boolean isAllHeroOutRoom = inRoomIdSet.size() == 0;
-            if (isAllHeroOutRoom) {
+            if (isMeetingStarted && isAllHeroOutRoom) {
                 isMeetingStarted = false;
                 // notify waiting professor for meeting end event
                 meetingEndLock.notifyAll();
