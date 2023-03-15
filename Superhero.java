@@ -115,7 +115,7 @@ public class Superhero extends Thread {
         // if have current task, submit task
         if (currentMission != null) {
             rosterComplete.addNew(currentMission);
-            // System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
+             System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
         }
 
         // get new task
