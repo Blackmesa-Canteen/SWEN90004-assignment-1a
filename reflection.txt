@@ -44,3 +44,7 @@ ID: 1141181
    Possible Reason: Multiple heroes registered in room at the same time, and got the same size of the RoomHeroIdSet. As a result,
         the final total size of RoomHeroIdSet was always less than the total hero number. The meeting could not start.
    Solution: Make register in room method serializable, so that the final RoomHeroIdSet size can guaranteed correct.
+
+6. Problem: Missions acquired before added to New Roaster
+   Possible Reason: addNew() and println() operations are not atomic.
+   Solution: Synchronized lock.

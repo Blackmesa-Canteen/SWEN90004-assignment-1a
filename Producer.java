@@ -21,8 +21,11 @@ public class Producer extends Thread {
             try {
                 // create a new mission and send it to the roster.
                 Mission mission = Mission.getNewMission();
-                roster.addNew(mission);
-                System.out.printf("Mission %d added to New Roster.%n", mission.getId());
+                synchronized (roster) {
+                    // make display atomic
+                    roster.addNew(mission);
+                    System.out.printf("Mission %d added to New Roster.%n", mission.getId());
+                }
 
                 // let some time pass before the next mission arrives
                 sleep(Params.MISSION_ADDITION_TIME);
