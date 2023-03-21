@@ -3,7 +3,7 @@ import java.util.Set;
 
 /**
  * <p>
- *  Mansion simulation obj
+ * Mansion simulation obj
  * </p>
  *
  * @author Xiaotian Li 1141181
@@ -22,7 +22,7 @@ public class Mansion {
     private final Set<Integer> inRoomIdSet;
 
     // hero id set who are in Mansion now
-    private final Set<Integer>  inMansionIdSet;
+    private final Set<Integer> inMansionIdSet;
 
     private volatile boolean isProfessorInMansion;
 
@@ -53,68 +53,62 @@ public class Mansion {
     /**
      * enter the mansion. Register id to the set.
      */
-    public boolean registerHeroInMansion(int heroId) {
-        synchronized (this) {
-            if (isProfessorInMansion) {
-                // if professor in mansion, can not in
-                return false;
-            }
-
-            if (inMansionIdSet.contains(heroId)) {
-                // if already in mansion
-                return false;
-            }
-
-            inMansionIdSet.add(heroId);
-            System.out.printf("Superhero %d enters Mansion.%n", heroId);
-            return true;
+    public synchronized boolean registerHeroInMansion(int heroId) {
+        if (isProfessorInMansion) {
+            // if professor in mansion, can not in
+            return false;
         }
+
+        if (inMansionIdSet.contains(heroId)) {
+            // if already in mansion
+            return false;
+        }
+
+        inMansionIdSet.add(heroId);
+        System.out.printf("Superhero %d enters Mansion.%n", heroId);
+        return true;
     }
 
     /**
      * leave mansion.
      */
-    public boolean registerHeroOutMansion(int heroId) {
-        synchronized (this) {
-            if (isProfessorInMansion) {
-                // if professor in mansion, can not out
-                return false;
-            }
-
-            if (inRoomIdSet.contains(heroId)) {
-                // in the room can not leave the mansion
-                return false;
-            }
-
-            if (!inMansionIdSet.contains(heroId)) {
-                // if not in the mansion at all
-                return false;
-            }
-
-            inMansionIdSet.remove(heroId);
-            System.out.printf("Superhero %d exits from Mansion.%n", heroId);
-            return true;
+    public synchronized boolean registerHeroOutMansion(int heroId) {
+        if (isProfessorInMansion) {
+            // if professor in mansion, can not out
+            return false;
         }
+
+        if (inRoomIdSet.contains(heroId)) {
+            // in the room can not leave the mansion
+            return false;
+        }
+
+        if (!inMansionIdSet.contains(heroId)) {
+            // if not in the mansion at all
+            return false;
+        }
+
+        inMansionIdSet.remove(heroId);
+        System.out.printf("Superhero %d exits from Mansion.%n", heroId);
+        return true;
     }
 
     /**
      * hero enter room
      */
-    public boolean registerHeroInRoom(int heroId) {
-        synchronized (this) {
-            if (!inMansionIdSet.contains(heroId)) {
-                // hero should in mansion before enter room
-                return false;
-            }
-
-            if (inRoomIdSet.contains(heroId)) {
-                // if already in room
-                return false;
-            }
-
-            inRoomIdSet.add(heroId);
-            System.out.printf("Superhero %d enters the Secret Room.%n", heroId);
+    public synchronized boolean registerHeroInRoom(int heroId) {
+        if (!inMansionIdSet.contains(heroId)) {
+            // hero should in mansion before enter room
+            return false;
         }
+
+        if (inRoomIdSet.contains(heroId)) {
+            // if already in room
+            return false;
+        }
+
+        inRoomIdSet.add(heroId);
+        System.out.printf("Superhero %d enters the Secret Room.%n", heroId);
 
         // try start meeting
         tryStartMeeting();
@@ -124,21 +118,19 @@ public class Mansion {
     /**
      * hero leave room
      */
-    public boolean registerHeroOutRoom(int heroId) {
-        synchronized (this) {
-            if (!inMansionIdSet.contains(heroId)) {
-                // hero should in mansion before leaving room
-                return false;
-            }
-
-            if (!inRoomIdSet.contains(heroId)) {
-                // hero should in room before leave the room
-                return false;
-            }
-
-            inRoomIdSet.remove(heroId);
-            System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
+    public synchronized boolean registerHeroOutRoom(int heroId) {
+        if (!inMansionIdSet.contains(heroId)) {
+            // hero should in mansion before leaving room
+            return false;
         }
+
+        if (!inRoomIdSet.contains(heroId)) {
+            // hero should in room before leave the room
+            return false;
+        }
+
+        inRoomIdSet.remove(heroId);
+        System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
 
         // try end meeting
         tryEndMeeting();
@@ -148,11 +140,9 @@ public class Mansion {
     /**
      * register professor in mansion
      */
-    public void registerProfessorInMansion() {
-        synchronized (this) {
-            isProfessorInMansion = true;
-            System.out.println("Professor Z enters the Mansion.");
-        }
+    public synchronized void registerProfessorInMansion() {
+        isProfessorInMansion = true;
+        System.out.println("Professor Z enters the Mansion.");
 
         tryStartMeeting();
     }
@@ -160,21 +150,9 @@ public class Mansion {
     /**
      * register professor out mansion
      */
-    public void registerProfessorOutMansion() {
-        synchronized (this) {
-            isProfessorInMansion = false;
-            System.out.println("Professor Z leaves the Mansion.");
-        }
-
-        // notify all waiting heroes for entering mansion
-        synchronized (mansionEntryLock) {
-            mansionEntryLock.notifyAll();
-        }
-
-        // notify all waiting heroes for leaving mansion
-        synchronized (mansionLeaveLock) {
-            mansionLeaveLock.notifyAll();
-        }
+    public synchronized void registerProfessorOutMansion() {
+        isProfessorInMansion = false;
+        System.out.println("Professor Z leaves the Mansion.");
     }
 
     /**
@@ -183,8 +161,9 @@ public class Mansion {
      */
     private void tryStartMeeting() {
         synchronized (meetingStartLock) {
+            boolean isRoomNotEmpty = inRoomIdSet.size() != 0;
             boolean isAllHeroInRoom = inMansionIdSet.size() == inRoomIdSet.size();
-            if (!isMeetingStarted && isProfessorInMansion && isAllHeroInRoom) {
+            if (!isMeetingStarted && isRoomNotEmpty && isProfessorInMansion && isAllHeroInRoom) {
                 isMeetingStarted = true;
                 // notify all waiting hero for meeting
                 meetingStartLock.notifyAll();
@@ -196,7 +175,6 @@ public class Mansion {
 
     /**
      * Once all superheroes have left the Secret Room, Professor Z ends the meeting
-     *
      */
     private void tryEndMeeting() {
         synchronized (meetingEndLock) {
@@ -210,8 +188,6 @@ public class Mansion {
             }
 
             // System.out.println("[debug] roomSize: " + inRoomIdSet.size());
-
-
         }
     }
 

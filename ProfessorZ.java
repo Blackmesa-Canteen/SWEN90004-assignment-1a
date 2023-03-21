@@ -51,6 +51,16 @@ public class ProfessorZ extends Thread {
 
         // professor out the mansion
         mansion.registerProfessorOutMansion();
+
+        // notify all waiting heroes for entering mansion
+        synchronized (mansion.getMansionEntryLock()) {
+            mansion.getMansionEntryLock().notifyAll();
+        }
+
+        // notify all waiting heroes for leaving mansion
+        synchronized (mansion.getMansionLeaveLock()) {
+            mansion.getMansionLeaveLock().notifyAll();
+        }
     }
 
     public Mansion getMansion() {
