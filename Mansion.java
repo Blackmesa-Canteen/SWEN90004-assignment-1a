@@ -26,19 +26,7 @@ public class Mansion {
 
     private volatile boolean isProfessorInMansion;
 
-    // lock for superhero mansion entry
-    private final Object mansionEntryLock = new Object();
-
-    // lock for superhero mansion leaving
-    private final Object mansionLeaveLock = new Object();
-
     private volatile boolean isMeetingStarted;
-
-    // lock for meeting started
-    private final Object meetingStartLock = new Object();
-
-    // lock for meeting ended
-    private final Object meetingEndLock = new Object();
 
     public Mansion(String id, Roster rosterNew, Roster rosterComplete) {
         this.id = id;
@@ -53,44 +41,51 @@ public class Mansion {
     /**
      * enter the mansion. Register id to the set.
      */
-    public synchronized boolean registerHeroInMansion(int heroId) {
-        if (isProfessorInMansion) {
-            // if professor in mansion, can not in
-            return false;
-        }
+    public synchronized void registerHeroInMansion(int heroId) {
 
         if (inMansionIdSet.contains(heroId)) {
             // if already in mansion
-            return false;
+            return;
+        }
+
+        while (isProfessorInMansion) {
+            // if professor in mansion, can not in
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         inMansionIdSet.add(heroId);
         System.out.printf("Superhero %d enters Mansion.%n", heroId);
-        return true;
     }
 
     /**
      * leave mansion.
      */
-    public synchronized boolean registerHeroOutMansion(int heroId) {
-        if (isProfessorInMansion) {
-            // if professor in mansion, can not out
-            return false;
-        }
-
+    public synchronized void registerHeroOutMansion(int heroId) {
         if (inRoomIdSet.contains(heroId)) {
             // in the room can not leave the mansion
-            return false;
+            return;
         }
 
         if (!inMansionIdSet.contains(heroId)) {
             // if not in the mansion at all
-            return false;
+            return;
+        }
+
+        while (isProfessorInMansion) {
+            // if professor in mansion, can not out
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         inMansionIdSet.remove(heroId);
         System.out.printf("Superhero %d exits from Mansion.%n", heroId);
-        return true;
     }
 
     /**
@@ -110,8 +105,8 @@ public class Mansion {
         inRoomIdSet.add(heroId);
         System.out.printf("Superhero %d enters the Secret Room.%n", heroId);
 
-        // try start meeting
-        tryStartMeeting();
+        // notify prof to start meeting
+        notifyAll();
         return true;
     }
 
@@ -132,8 +127,9 @@ public class Mansion {
         inRoomIdSet.remove(heroId);
         System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
 
-        // try end meeting
-        tryEndMeeting();
+        // notify professor to end meeting
+        notifyAll();
+
         return true;
     }
 
@@ -143,8 +139,45 @@ public class Mansion {
     public synchronized void registerProfessorInMansion() {
         isProfessorInMansion = true;
         System.out.println("Professor Z enters the Mansion.");
+    }
 
-        tryStartMeeting();
+    /**
+     * professor start meeting
+     */
+    public synchronized void professorStartMeeting() {
+        while (inMansionIdSet.size() != inRoomIdSet.size()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        isMeetingStarted = true;
+        rosterComplete.setMeetingStarted(true);
+        rosterNew.setMeetingStarted(true);
+        System.out.println("Meeting begins!");
+
+        // notify all waiting hero for meeting
+        notifyAll();
+    }
+
+    /**
+     * professor end meeting
+     */
+    public synchronized void professorEndMeeting() {
+        while (inRoomIdSet.size() > 0) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        isMeetingStarted = false;
+        rosterComplete.setMeetingStarted(false);
+        rosterNew.setMeetingStarted(false);
+        System.out.println("Meeting ends!");
     }
 
     /**
@@ -153,42 +186,6 @@ public class Mansion {
     public synchronized void registerProfessorOutMansion() {
         isProfessorInMansion = false;
         System.out.println("Professor Z leaves the Mansion.");
-    }
-
-    /**
-     * Once all superheroes who are present in the Mansion
-     * have also entered the Secret Room, Professor Z starts a meeting
-     */
-    private void tryStartMeeting() {
-        synchronized (meetingStartLock) {
-            boolean isRoomNotEmpty = inRoomIdSet.size() != 0;
-            boolean isAllHeroInRoom = inMansionIdSet.size() == inRoomIdSet.size();
-            if (!isMeetingStarted && isRoomNotEmpty && isProfessorInMansion && isAllHeroInRoom) {
-                isMeetingStarted = true;
-                // notify all waiting hero for meeting
-                meetingStartLock.notifyAll();
-
-                System.out.println("Meeting begins!");
-            }
-        }
-    }
-
-    /**
-     * Once all superheroes have left the Secret Room, Professor Z ends the meeting
-     */
-    private void tryEndMeeting() {
-        synchronized (meetingEndLock) {
-            boolean isAllHeroOutRoom = inRoomIdSet.size() == 0;
-            if (isMeetingStarted && isAllHeroOutRoom) {
-                isMeetingStarted = false;
-                // notify waiting professor for meeting end event
-                meetingEndLock.notifyAll();
-
-                System.out.println("Meeting ends!");
-            }
-
-            // System.out.println("[debug] roomSize: " + inRoomIdSet.size());
-        }
     }
 
     public Roster getRosterNew() {
@@ -219,27 +216,11 @@ public class Mansion {
         isProfessorInMansion = professorInMansion;
     }
 
-    public Object getMansionEntryLock() {
-        return mansionEntryLock;
-    }
-
-    public Object getMeetingStartLock() {
-        return meetingStartLock;
-    }
-
     public boolean isMeetingStarted() {
         return isMeetingStarted;
     }
 
     public void setMeetingStarted(boolean meetingStarted) {
         isMeetingStarted = meetingStarted;
-    }
-
-    public Object getMansionLeaveLock() {
-        return mansionLeaveLock;
-    }
-
-    public Object getMeetingEndLock() {
-        return meetingEndLock;
     }
 }
