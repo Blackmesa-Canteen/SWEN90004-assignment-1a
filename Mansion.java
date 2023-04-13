@@ -24,6 +24,10 @@ public class Mansion {
     // hero id set who are in Mansion now
     private final Set<Integer> inMansionIdSet;
 
+    // Modification: added waitMeeting set
+    private final Set<Integer> waitMeetingIdSet;
+    private final Set<Integer> finishMeetingIdSet;
+
     private volatile boolean isProfessorInMansion;
 
     private volatile boolean isMeetingStarted;
@@ -34,6 +38,8 @@ public class Mansion {
         this.rosterComplete = rosterComplete;
         inRoomIdSet = new HashSet<>();
         inMansionIdSet = new HashSet<>();
+        waitMeetingIdSet = new HashSet<>();
+        finishMeetingIdSet = new HashSet<>();
         isProfessorInMansion = false;
         isMeetingStarted = false;
     }
@@ -58,6 +64,7 @@ public class Mansion {
         }
 
         inMansionIdSet.add(heroId);
+        waitMeetingIdSet.add(heroId);
         System.out.printf("Superhero %d enters Mansion.%n", heroId);
     }
 
@@ -85,6 +92,7 @@ public class Mansion {
         }
 
         inMansionIdSet.remove(heroId);
+        finishMeetingIdSet.remove(heroId);
         System.out.printf("Superhero %d exits from Mansion.%n", heroId);
     }
 
@@ -125,6 +133,8 @@ public class Mansion {
         }
 
         inRoomIdSet.remove(heroId);
+        waitMeetingIdSet.remove(heroId);
+        finishMeetingIdSet.add(heroId);
         System.out.printf("Superhero %d leaves the Secret Room.%n", heroId);
 
         // notify professor to end meeting
@@ -145,7 +155,15 @@ public class Mansion {
      * professor start meeting
      */
     public synchronized void professorStartMeeting() {
-        while (inMansionIdSet.size() != inRoomIdSet.size()) {
+//        while (inMansionIdSet.size() != inRoomIdSet.size()) {
+//            try {
+//                wait();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+        // Modify: change start meeting condition
+        while (inRoomIdSet.size() != inMansionIdSet.size() - finishMeetingIdSet.size()) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -186,6 +204,9 @@ public class Mansion {
     public synchronized void registerProfessorOutMansion() {
         isProfessorInMansion = false;
         System.out.println("Professor Z leaves the Mansion.");
+
+        // notify heroes to in/out mansion
+        notifyAll();
     }
 
     public Roster getRosterNew() {
@@ -208,19 +229,19 @@ public class Mansion {
         return inMansionIdSet;
     }
 
-    public boolean isProfessorInMansion() {
+    public synchronized boolean isProfessorInMansion() {
         return isProfessorInMansion;
     }
 
-    public void setProfessorInMansion(Boolean professorInMansion) {
+    public synchronized void setProfessorInMansion(Boolean professorInMansion) {
         isProfessorInMansion = professorInMansion;
     }
 
-    public boolean isMeetingStarted() {
+    public synchronized boolean isMeetingStarted() {
         return isMeetingStarted;
     }
 
-    public void setMeetingStarted(boolean meetingStarted) {
+    public synchronized void setMeetingStarted(boolean meetingStarted) {
         isMeetingStarted = meetingStarted;
     }
 }

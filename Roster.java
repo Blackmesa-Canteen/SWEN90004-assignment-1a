@@ -103,11 +103,13 @@ public class Roster {
         return missionList;
     }
 
-    public boolean isMeetingStarted() {
+    public synchronized boolean isMeetingStarted() {
         return isMeetingStarted;
     }
 
-    public void setMeetingStarted(boolean meetingStarted) {
+    public synchronized void setMeetingStarted(boolean meetingStarted) {
         isMeetingStarted = meetingStarted;
+        // notify waiting Roster lock
+        notifyAll();
     }
 }
