@@ -68,14 +68,16 @@ public class Superhero extends Thread {
             mansion.registerHeroOutMansion(this.getHeroId());
 
             // hero shout to work
-            System.out.printf("Superhero %d sets of to complete Mission %d!%n", id, currentMission.getId());
+            System.out.printf("Superhero %d sets of to complete Mission %d!%n",
+                    id, currentMission.getId());
 
             // pretend to conduct current mission by sleeping
             sleep(Params.getMissionTime());
 
             // mark mission as done, ready to go back
             currentMission.completed = true;
-            System.out.printf("Superhero %d completed Mission %d!%n", id, currentMission.getId());
+            System.out.printf("Superhero %d completed Mission %d!%n",
+                    id, currentMission.getId());
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -91,12 +93,14 @@ public class Superhero extends Thread {
         // if have current task, submit task
         if (currentMission != null) {
             rosterComplete.submitCompletedMission(currentMission);
-            System.out.printf("Superhero %d releases Mission %d.%n", id, currentMission.getId());
+            System.out.printf("Superhero %d releases Mission %d.%n",
+                    id, currentMission.getId());
         }
 
         // get new task
         currentMission = rosterNew.acquireNewMission();
-        System.out.printf("Superhero %d acquires Mission %d.%n", id, currentMission.getId());
+        System.out.printf("Superhero %d acquires Mission %d.%n",
+                id, currentMission.getId());
     }
 
     public int getHeroId() {
