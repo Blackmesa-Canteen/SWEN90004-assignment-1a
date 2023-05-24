@@ -14,7 +14,7 @@ class Params {
 	static Random rnd = new Random();
 
 	// number of knights in the simulator
-    static final int NUM_SUPERHEROES = 4;
+    static final int NUM_SUPERHEROES = 3;
 
     // average duration that superheros spend discussing world affairs before and after meetings
     static final int MEAN_DISCUSSION_TIME = 2000;
